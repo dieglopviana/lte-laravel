@@ -37,6 +37,14 @@
     <div class="login-box-body box-login">
         <p class="login-box-msg">Digite seu usuário e senha:</p>
 
+        @if (Session::has('registerSuccessfull'))
+            <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h4><i class="icon fa fa-check"></i> Parabéns!</h4>
+                {{ Session::get('registerSuccessfull') }}
+            </div>
+        @endif
+
         <form action="../../index2.html" method="post">
             <div class="form-group has-feedback">
                 <input type="email" class="form-control" placeholder="Email"/>
@@ -100,27 +108,31 @@
     <!-- Box register -->
     <div class="register-box-body box-register hidden">
         <p class="login-box-msg">Informe seus dados para se cadastrar</p>
-        <form action="../../index.html" method="post">
+
+        <div class="alert alert-danger alert-dismissible hidden box-register-danger"></div>
+
+        <form name="form-register">
+            @csrf
             <div class="form-group has-feedback">
-                <input type="text" class="form-control" id="register-name" placeholder="Nome"/>
+                <input type="text" class="form-control" name="name" id="register-name" placeholder="Nome"/>
                 <span class="glyphicon glyphicon-user form-control-feedback"></span>
                 <p class="text-red hidden" id="error-name"></p>
             </div>
 
             <div class="form-group has-feedback">
-                <input type="email" class="form-control" id="register-email" placeholder="Email"/>
+                <input type="email" class="form-control" name="email" id="register-email" placeholder="Email"/>
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
                 <p class="text-red hidden" id="error-email"></p>
             </div>
 
             <div class="form-group has-feedback">
-                <input type="password" class="form-control" id="register-password" placeholder="Senha"/>
+                <input type="password" class="form-control" name="password" id="register-password" placeholder="Senha"/>
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 <p class="text-red hidden" id="error-password"></p>
             </div>
 
             <div class="form-group has-feedback">
-                <input type="password" class="form-control" id="register-confirm-password" placeholder="Confirme a Senha"/>
+                <input type="password" class="form-control" name="password_confirmation" id="register-password-confirmation" placeholder="Confirme a Senha"/>
                 <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
                 <p class="text-red hidden" id="error-confirm-password"></p>
             </div>
@@ -129,7 +141,7 @@
                 <div class="col-xs-8">
                     <div class="checkbox icheck">
                         <label>
-                            <input type="checkbox" class="check-agree-terms" id="register-accept-terms"> Eu aceito os
+                            <input type="checkbox" class="check-agree-terms" name="accept_terms" id="register-accept-terms"> Eu aceito os
                             <a href="javascript:void(0);" class="show-terms" data-toggle="modal" data-target=".terms-modal">termos</a>
                         </label>
 
@@ -184,6 +196,8 @@
             $('.box-forgot-password').addClass('hidden');
             $('.box-register').addClass('hidden');
             $('input').iCheck('uncheck');
+
+            $('.box-register-danger').html('').addClass('hidden');
         })
 
 
@@ -198,8 +212,30 @@
         })
 
         $('body').on('click', '#btn-register', function(){
+            $('#btn-register').addClass('disabled').html('Aguarde...');
+
             if (validateRegister()){
-                alert('aqui');
+                $.ajax({
+                    url: "{{ route('user.register') }}",
+                    type: "post",
+                    data: $('form[name="form-register"]').serialize(),
+                    dataType: 'json',
+                    success: function(response){
+                        $('.box-register-danger').html('').removeClass('hidden');
+
+                        if (response.status == 1){
+                            $('.box-register-danger').html('').addClass('hidden');
+                            window.location.href="{{ route('login.index') }}";
+                        } else {
+                            var messagesErrors = response.errors.join('<br>')
+
+                            $('.box-register-danger').html(messagesErrors).removeClass('hidden');
+                            $('#btn-register').removeClass('disabled').html('Cadastrar');
+                        }
+                    }
+                })
+            } else {
+                $('#btn-register').removeClass('disabled').html('Cadastrar');
             }
         })
 
@@ -208,7 +244,7 @@
             var name = $('#register-name').val();
             var email = $('#register-email').val();
             var password = $('#register-password').val();
-            var confirmPassword = $('#register-confirm-password').val();
+            var confirmPassword = $('#register-password-confirmation').val();
             var acceptTerms = $('input#register-accept-terms:checked').length;
 
             var returnFalse = 0;
