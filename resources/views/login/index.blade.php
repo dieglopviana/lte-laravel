@@ -37,6 +37,8 @@
     <div class="login-box-body box-login">
         <p class="login-box-msg">Digite seu usuário e senha:</p>
 
+        <div class="alert alert-danger alert-dismissible hidden box-login-danger"></div>
+
         @if (Session::has('registerSuccessfull'))
             <div class="alert alert-success alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
@@ -45,33 +47,36 @@
             </div>
         @endif
 
-        <form action="../../index2.html" method="post">
+        <form name="form-login" action="{{ route('user.authenticate') }}" method="POST">
+            @csrf
             <div class="form-group has-feedback">
-                <input type="email" class="form-control" placeholder="Email"/>
+                <input type="email" class="form-control email-login" name="email" placeholder="Email"/>
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                <p class="text-red hidden" id="error-email-login"></p>
             </div>
             <div class="form-group has-feedback">
-                <input type="password" class="form-control" placeholder="Senha"/>
+                <input type="password" class="form-control password-login" name="password" placeholder="Senha"/>
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                <p class="text-red hidden" id="error-password-login"></p>
             </div>
             <div class="row">
                 <div class="col-xs-8">
                     <div class="checkbox icheck">
                         <label>
-                            <input type="checkbox"> Lembre de mim
+                            <input type="checkbox" name="remember"> Lembre de mim
                         </label>
                     </div>
                 </div><!-- /.col -->
                 <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">Entrar</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat btn-entrar">Entrar</button>
                 </div><!-- /.col -->
             </div>
         </form>
 
         <div class="social-auth-links text-center">
-            <p>- OU -</p>
+            <!-- <p>- OU -</p>
             <a href="javascript:void(0);" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Entrar com o Facebook</a>
-            <a href="javascript:void(0);" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a>
+            <a href="javascript:void(0);" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a> -->
         </div><!-- /.social-auth-links -->
 
         <a href="javascript:void(0);" class="forgot-password">Esqueci minha senha</a><br>
@@ -150,15 +155,15 @@
                 </div><!-- /.col -->
 
                 <div class="col-xs-4">
-                    <button type="button" class="btn btn-primary btn-block btn-flat" id="btn-register">Cadastrar</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat" id="btn-register">Cadastrar</button>
                 </div><!-- /.col -->
             </div>
         </form>
 
         <div class="social-auth-links text-center">
-            <p>- OU -</p>
+            <!-- <p>- OU -</p>
             <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Entrar com o Facebook</a>
-            <a href="#" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a>
+            <a href="#" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a> -->
         </div>
 
         <a href="javascript:void(0);" class="text-center cancel">Já sou cadastrado</a>
@@ -197,7 +202,9 @@
             $('.box-register').addClass('hidden');
             $('input').iCheck('uncheck');
 
+            $('p.text-red').html('').addClass('hidden');
             $('.box-register-danger').html('').addClass('hidden');
+            $('.box-login-danger').html('').addClass('hidden');
         })
 
 
@@ -211,7 +218,59 @@
             $('.box-register').removeClass('hidden');
         })
 
-        $('body').on('click', '#btn-register', function(){
+
+        // $('body').on('click', '.btn-entrar', function(){
+        $('form[name="form-login"]').on('submit', function(event){
+            event.preventDefault();
+
+            $('.btn-entrar').addClass('disabled').html('Aguarde...');
+
+            var returnFalse = 0;
+
+            if ($('input.email-login').val() == ''){
+                returnFalse = 1;
+                $('#error-email-login').html('*Digite seu email').removeClass('hidden');
+            } else {
+                $('#error-email-login').html('').addClass('hidden');
+            }
+
+            if ($('input.password-login').val() == ''){
+                returnFalse = 1;
+                $('#error-password-login').html('*Digite sua senha').removeClass('hidden');
+            } else {
+                $('#error-password-login').html('').addClass('hidden');
+            }
+
+            if (returnFalse == 0){
+                $.ajax({
+                    url: "{{ route('user.authenticate') }}",
+                    type: "post",
+                    data: $('form[name="form-login"]').serialize(),
+                    dataType: 'json',
+                    success: function(response){
+                        if (response.status == 1){
+                            window.location.href="{{ route('dashboard.index') }}";
+                        } else {
+                            var messagesErrors = response.errors.join('<br>');
+
+                            $('.btn-entrar').removeClass('disabled').html('Entrar');
+                            $('.box-login-danger').html(messagesErrors).removeClass('hidden');
+                            $('#btn-entrar').removeClass('disabled').html('Entrar');
+                        }
+                    }
+                })
+            } else {
+                $('.btn-entrar').removeClass('disabled').html('Entrar');
+            }
+
+            return false;
+        })
+
+
+        // $('body').on('click', '#btn-register', function(){
+        $('form[name="form-register"]').on('submit', function(event){
+            event.preventDefault();
+
             $('#btn-register').addClass('disabled').html('Aguarde...');
 
             if (validateRegister()){
@@ -227,7 +286,7 @@
                             $('.box-register-danger').html('').addClass('hidden');
                             window.location.href="{{ route('login.index') }}";
                         } else {
-                            var messagesErrors = response.errors.join('<br>')
+                            var messagesErrors = response.errors.join('<br>');
 
                             $('.box-register-danger').html(messagesErrors).removeClass('hidden');
                             $('#btn-register').removeClass('disabled').html('Cadastrar');

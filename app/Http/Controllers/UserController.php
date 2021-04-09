@@ -4,11 +4,47 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Validator;
 
 class UserController extends Controller
 {
+
+    public function authenticate(Request $request){
+        $credetials = $request->only('email', 'password');
+
+        $rules = [
+            'email' => 'required|email',
+            'password' => 'required'
+        ];
+
+        $customMessages = [
+            'email.required' => '*Digite seu email cadastrado',
+            'email.email' => '*Digite um email válido',
+            'password.required' => '*Digite sua senha'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
+
+        if ($validator->passes()){
+            if (Auth::attempt($credetials, $request->has('remember'))){
+                return response()->json(['status' => 1]);
+            } else {
+                return response()->json(['status' => 0, 'errors' => ['*Email ou senha inválidos']]);
+            }
+        } else {
+            return response()->json(['status' => 0, 'errors' => $validator->errors()->all()]);
+        }
+    }
+
+
+    public function logout(){
+        Auth::logout();
+
+        return redirect()->route('login.index');
+    }
+
 
     public function register(Request $request){
         $rules = [
