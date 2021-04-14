@@ -11,41 +11,6 @@ use Validator;
 class UserController extends Controller
 {
 
-    public function authenticate(Request $request){
-        $credetials = $request->only('email', 'password');
-
-        $rules = [
-            'email' => 'required|email',
-            'password' => 'required'
-        ];
-
-        $customMessages = [
-            'email.required' => '*Digite seu email cadastrado',
-            'email.email' => '*Digite um email válido',
-            'password.required' => '*Digite sua senha'
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $customMessages);
-
-        if ($validator->passes()){
-            if (Auth::attempt($credetials, $request->has('remember'))){
-                return response()->json(['status' => 1]);
-            } else {
-                return response()->json(['status' => 0, 'errors' => ['*Email ou senha inválidos']]);
-            }
-        } else {
-            return response()->json(['status' => 0, 'errors' => $validator->errors()->all()]);
-        }
-    }
-
-
-    public function logout(){
-        Auth::logout();
-
-        return redirect()->route('login.index');
-    }
-
-
     public function register(Request $request){
         $rules = [
             'name' => 'required|regex:/^[\pL\s\-]+$/u',
@@ -75,7 +40,7 @@ class UserController extends Controller
             $user->password = Hash::make($request->input('password'));
 
             if ($user->save()){
-                $request->session()->flash('registerSuccessfull', 'Cadastro realizado com sucesso!');
+                $request->session()->flash('messageSuccessfull', 'Cadastro realizado com sucesso!');
                 return response()->json(['status' => 1]);
             } else {
                 return response()->json(['status' => 0, 'errors' => 'Erro ao tentar cadastrá-lo!']);

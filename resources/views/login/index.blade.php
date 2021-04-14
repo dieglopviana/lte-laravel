@@ -39,15 +39,22 @@
 
         <div class="alert alert-danger alert-dismissible hidden box-login-danger"></div>
 
-        @if (Session::has('registerSuccessfull'))
-            <div class="alert alert-success alert-dismissible">
+        @if (Session::has('messageError'))
+            <div class="alert alert-danger alert-dismissible">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                <h4><i class="icon fa fa-check"></i> Parabéns!</h4>
-                {{ Session::get('registerSuccessfull') }}
+                {{ Session::get('messageError') }}
             </div>
         @endif
 
-        <form name="form-login" action="{{ route('user.authenticate') }}" method="POST">
+        @if (Session::has('messageSuccessfull'))
+            <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h4><i class="icon fa fa-check"></i> Muito bem!</h4>
+                {{ Session::get('messageSuccessfull') }}
+            </div>
+        @endif
+
+        <form name="form-login" action="{{ route('login.authenticate') }}" method="POST">
             @csrf
             <div class="form-group has-feedback">
                 <input type="email" class="form-control email-login" name="email" placeholder="Email"/>
@@ -90,10 +97,14 @@
     <div class="login-box-body box-forgot-password hidden">
         <p class="login-box-msg">Digite seu email cadastrado:</p>
 
-        <form action="../../index2.html" method="post">
+        <div class="alert alert-danger alert-dismissible hidden box-forgot-password-danger"></div>
+
+        <form name="forgot-password">
+            @csrf
             <div class="form-group has-feedback">
-                <input type="email" class="form-control" placeholder="Email"/>
+                <input type="email" class="form-control email-forgot-password" name="email" placeholder="Email"/>
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                <p class="text-red hidden" id="error-forgot-password-email"></p>
             </div>
             <div class="row">
                 <div class="col-xs-8">
@@ -102,7 +113,7 @@
                     </div>
                 </div><!-- /.col -->
                 <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">Enviar</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat btn-enviar">Enviar</button>
                 </div><!-- /.col -->
             </div>
         </form>
@@ -203,8 +214,7 @@
             $('input').iCheck('uncheck');
 
             $('p.text-red').html('').addClass('hidden');
-            $('.box-register-danger').html('').addClass('hidden');
-            $('.box-login-danger').html('').addClass('hidden');
+            $('div.alert-danger').html('').addClass('hidden');
         })
 
 
@@ -243,7 +253,7 @@
 
             if (returnFalse == 0){
                 $.ajax({
-                    url: "{{ route('user.authenticate') }}",
+                    url: "{{ route('login.authenticate') }}",
                     type: "post",
                     data: $('form[name="form-login"]').serialize(),
                     dataType: 'json',
@@ -261,6 +271,42 @@
                 })
             } else {
                 $('.btn-entrar').removeClass('disabled').html('Entrar');
+            }
+
+            return false;
+        })
+
+
+        $('form[name="forgot-password"]').on('submit', function(event){
+            event.preventDefault();
+
+            $('.btn-enviar').addClass('disabled').html('Aguarde...');
+
+            var forgotPasswordEmail = $('input.email-forgot-password').val();
+
+            if (forgotPasswordEmail == ""){
+                $('#error-forgot-password-email').html('*Digite seu email corretamente').removeClass('hidden');
+                $('.btn-enviar').removeClass('disabled').html('Enviar');
+            } else {
+                $('#error-forgot-password-email').html('').addClass('hidden');
+
+                $.ajax({
+                    url: "{{ route('login.forgot-password') }}",
+                    type: 'post',
+                    data: $('form[name="forgot-password"]').serialize(),
+                    dataType: 'json',
+                    success: function(response){
+                        $('.btn-enviar').removeClass('disabled').html('Enviar');
+
+                        if (response.status == 1){
+                            window.location.href="{{ route('login.index') }}";
+                        } else {
+                            var messagesErrors = response.errors.join('<br>');
+
+                            $('.box-forgot-password-danger').html(messagesErrors).removeClass('hidden');
+                        }
+                    }
+                })
             }
 
             return false;
