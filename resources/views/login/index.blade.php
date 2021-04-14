@@ -37,37 +37,57 @@
     <div class="login-box-body box-login">
         <p class="login-box-msg">Digite seu usuário e senha:</p>
 
-        <form action="../../index2.html" method="post">
+        <div class="alert alert-danger alert-dismissible hidden box-login-danger"></div>
+
+        @if (Session::has('messageError'))
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                {{ Session::get('messageError') }}
+            </div>
+        @endif
+
+        @if (Session::has('messageSuccessfull'))
+            <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h4><i class="icon fa fa-check"></i> Muito bem!</h4>
+                {{ Session::get('messageSuccessfull') }}
+            </div>
+        @endif
+
+        <form name="form-login" action="{{ route('login.authenticate') }}" method="POST">
+            @csrf
             <div class="form-group has-feedback">
-                <input type="email" class="form-control" placeholder="Email"/>
+                <input type="email" class="form-control email-login" name="email" placeholder="Email"/>
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                <p class="text-red hidden" id="error-email-login"></p>
             </div>
             <div class="form-group has-feedback">
-                <input type="password" class="form-control" placeholder="Senha"/>
+                <input type="password" class="form-control password-login" name="password" placeholder="Senha"/>
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                <p class="text-red hidden" id="error-password-login"></p>
             </div>
             <div class="row">
                 <div class="col-xs-8">
                     <div class="checkbox icheck">
                         <label>
-                            <input type="checkbox"> Lembre de mim
+                            <input type="checkbox" name="remember"> Lembre de mim
                         </label>
                     </div>
                 </div><!-- /.col -->
                 <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">Entrar</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat btn-entrar">Entrar</button>
                 </div><!-- /.col -->
             </div>
         </form>
 
         <div class="social-auth-links text-center">
-            <p>- OU -</p>
-            <a href="void:" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Entrar com o Facebook</a>
-            <a href="void:" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a>
+            <!-- <p>- OU -</p>
+            <a href="javascript:void(0);" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Entrar com o Facebook</a>
+            <a href="javascript:void(0);" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a> -->
         </div><!-- /.social-auth-links -->
 
-        <a href="void:" class="forgot-password">Esqueci minha senha</a><br>
-        <a href="void:" class="text-center register">Cadastre-se</a>
+        <a href="javascript:void(0);" class="forgot-password">Esqueci minha senha</a><br>
+        <a href="javascript:void(0);" class="text-center register">Cadastre-se</a>
 
     </div><!-- /.login-box-body -->
 
@@ -77,19 +97,23 @@
     <div class="login-box-body box-forgot-password hidden">
         <p class="login-box-msg">Digite seu email cadastrado:</p>
 
-        <form action="../../index2.html" method="post">
+        <div class="alert alert-danger alert-dismissible hidden box-forgot-password-danger"></div>
+
+        <form name="forgot-password">
+            @csrf
             <div class="form-group has-feedback">
-                <input type="email" class="form-control" placeholder="Email"/>
+                <input type="email" class="form-control email-forgot-password" name="email" placeholder="Email"/>
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                <p class="text-red hidden" id="error-forgot-password-email"></p>
             </div>
             <div class="row">
                 <div class="col-xs-8">
                     <div class="checkbox icheck">
-                        <a href="void:" class="cancel">Cancelar</a>
+                        <a href="javascript:void(0);" class="cancel">Cancelar</a>
                     </div>
                 </div><!-- /.col -->
                 <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">Enviar</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat btn-enviar">Enviar</button>
                 </div><!-- /.col -->
             </div>
         </form>
@@ -100,52 +124,279 @@
     <!-- Box register -->
     <div class="register-box-body box-register hidden">
         <p class="login-box-msg">Informe seus dados para se cadastrar</p>
-        <form action="../../index.html" method="post">
+
+        <div class="alert alert-danger alert-dismissible hidden box-register-danger"></div>
+
+        <form name="form-register">
+            @csrf
             <div class="form-group has-feedback">
-                <input type="text" class="form-control" placeholder="Nome"/>
+                <input type="text" class="form-control" name="name" id="register-name" placeholder="Nome"/>
                 <span class="glyphicon glyphicon-user form-control-feedback"></span>
+                <p class="text-red hidden" id="error-name"></p>
             </div>
 
             <div class="form-group has-feedback">
-                <input type="email" class="form-control" placeholder="Email"/>
+                <input type="email" class="form-control" name="email" id="register-email" placeholder="Email"/>
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                <p class="text-red hidden" id="error-email"></p>
             </div>
 
             <div class="form-group has-feedback">
-                <input type="password" class="form-control" placeholder="Senha"/>
+                <input type="password" class="form-control" name="password" id="register-password" placeholder="Senha"/>
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                <p class="text-red hidden" id="error-password"></p>
             </div>
 
             <div class="form-group has-feedback">
-                <input type="password" class="form-control" placeholder="Confirme a Senha"/>
+                <input type="password" class="form-control" name="password_confirmation" id="register-password-confirmation" placeholder="Confirme a Senha"/>
                 <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
+                <p class="text-red hidden" id="error-confirm-password"></p>
             </div>
 
             <div class="row">
                 <div class="col-xs-8">
                     <div class="checkbox icheck">
                         <label>
-                            <input type="checkbox" class="check-agree-terms"> Eu aceito os
-                            <a href="void:" class="show-terms" data-toggle="modal" data-target=".terms-modal">termos</a>
-                            <!-- <a href="javascript:void(0);" class="show-terms">termos</a> -->
+                            <input type="checkbox" class="check-agree-terms" name="accept_terms" id="register-accept-terms"> Eu aceito os
+                            <a href="javascript:void(0);" class="show-terms" data-toggle="modal" data-target=".terms-modal">termos</a>
                         </label>
+
+                        <p class="text-red hidden" id="error-accept-terms"></p>
                     </div>
                 </div><!-- /.col -->
 
                 <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">Cadastrar</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat" id="btn-register">Cadastrar</button>
                 </div><!-- /.col -->
             </div>
         </form>
 
         <div class="social-auth-links text-center">
-            <p>- OU -</p>
+            <!-- <p>- OU -</p>
             <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Entrar com o Facebook</a>
-            <a href="#" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a>
+            <a href="#" class="btn btn-block btn-social btn-google-plus btn-flat"><i class="fa fa-google-plus"></i> Entrar com o Google+</a> -->
         </div>
 
-        <a href="void:" class="text-center cancel">Já sou cadastrado</a>
+        <a href="javascript:void(0);" class="text-center cancel">Já sou cadastrado</a>
     </div><!-- /.form-box -->
 </div><!-- /.login-box -->
 
 @endsection
+
+@push('jsFooter')
+<script>
+    $(function() {
+        $('input').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+            increaseArea: '20%' // optional
+        });
+
+
+        $('body').on('click', '.forgot-password', function(){
+            $('.box-login').addClass('hidden');
+            $('input[type=text]').val('');
+            $('input[type=email]').val('');
+            $('input[type=password]').val('');
+
+            $('.box-forgot-password').removeClass('hidden');
+        })
+
+
+        $('body').on('click', '.cancel', function(){
+            $('.box-login').removeClass('hidden');
+            $('input[type=text]').val('');
+            $('input[type=email]').val('');
+            $('input[type=password]').val('');
+
+            $('.box-forgot-password').addClass('hidden');
+            $('.box-register').addClass('hidden');
+            $('input').iCheck('uncheck');
+
+            $('p.text-red').html('').addClass('hidden');
+            $('div.alert-danger').html('').addClass('hidden');
+        })
+
+
+        $('body').on('click', '.register', function(){
+            $('.box-login').addClass('hidden');
+            $('input[type=text]').val('');
+            $('input[type=email]').val('');
+            $('input[type=password]').val('');
+
+            $('.box-forgot-password').addClass('hidden');
+            $('.box-register').removeClass('hidden');
+        })
+
+
+        // $('body').on('click', '.btn-entrar', function(){
+        $('form[name="form-login"]').on('submit', function(event){
+            event.preventDefault();
+
+            $('.btn-entrar').addClass('disabled').html('Aguarde...');
+
+            var returnFalse = 0;
+
+            if ($('input.email-login').val() == ''){
+                returnFalse = 1;
+                $('#error-email-login').html('*Digite seu email').removeClass('hidden');
+            } else {
+                $('#error-email-login').html('').addClass('hidden');
+            }
+
+            if ($('input.password-login').val() == ''){
+                returnFalse = 1;
+                $('#error-password-login').html('*Digite sua senha').removeClass('hidden');
+            } else {
+                $('#error-password-login').html('').addClass('hidden');
+            }
+
+            if (returnFalse == 0){
+                $.ajax({
+                    url: "{{ route('login.authenticate') }}",
+                    type: "post",
+                    data: $('form[name="form-login"]').serialize(),
+                    dataType: 'json',
+                    success: function(response){
+                        if (response.status == 1){
+                            window.location.href="{{ route('dashboard.index') }}";
+                        } else {
+                            var messagesErrors = response.errors.join('<br>');
+
+                            $('.btn-entrar').removeClass('disabled').html('Entrar');
+                            $('.box-login-danger').html(messagesErrors).removeClass('hidden');
+                            $('#btn-entrar').removeClass('disabled').html('Entrar');
+                        }
+                    }
+                })
+            } else {
+                $('.btn-entrar').removeClass('disabled').html('Entrar');
+            }
+
+            return false;
+        })
+
+
+        $('form[name="forgot-password"]').on('submit', function(event){
+            event.preventDefault();
+
+            $('.btn-enviar').addClass('disabled').html('Aguarde...');
+
+            var forgotPasswordEmail = $('input.email-forgot-password').val();
+
+            if (forgotPasswordEmail == ""){
+                $('#error-forgot-password-email').html('*Digite seu email corretamente').removeClass('hidden');
+                $('.btn-enviar').removeClass('disabled').html('Enviar');
+            } else {
+                $('#error-forgot-password-email').html('').addClass('hidden');
+
+                $.ajax({
+                    url: "{{ route('login.forgot-password') }}",
+                    type: 'post',
+                    data: $('form[name="forgot-password"]').serialize(),
+                    dataType: 'json',
+                    success: function(response){
+                        $('.btn-enviar').removeClass('disabled').html('Enviar');
+
+                        if (response.status == 1){
+                            window.location.href="{{ route('login.index') }}";
+                        } else {
+                            var messagesErrors = response.errors.join('<br>');
+
+                            $('.box-forgot-password-danger').html(messagesErrors).removeClass('hidden');
+                        }
+                    }
+                })
+            }
+
+            return false;
+        })
+
+
+        // $('body').on('click', '#btn-register', function(){
+        $('form[name="form-register"]').on('submit', function(event){
+            event.preventDefault();
+
+            $('#btn-register').addClass('disabled').html('Aguarde...');
+
+            if (validateRegister()){
+                $.ajax({
+                    url: "{{ route('user.register') }}",
+                    type: "post",
+                    data: $('form[name="form-register"]').serialize(),
+                    dataType: 'json',
+                    success: function(response){
+                        $('.box-register-danger').html('').removeClass('hidden');
+
+                        if (response.status == 1){
+                            $('.box-register-danger').html('').addClass('hidden');
+                            window.location.href="{{ route('login.index') }}";
+                        } else {
+                            var messagesErrors = response.errors.join('<br>');
+
+                            $('.box-register-danger').html(messagesErrors).removeClass('hidden');
+                            $('#btn-register').removeClass('disabled').html('Cadastrar');
+                        }
+                    }
+                })
+            } else {
+                $('#btn-register').removeClass('disabled').html('Cadastrar');
+            }
+        })
+
+
+        function validateRegister(){
+            var name = $('#register-name').val();
+            var email = $('#register-email').val();
+            var password = $('#register-password').val();
+            var confirmPassword = $('#register-password-confirmation').val();
+            var acceptTerms = $('input#register-accept-terms:checked').length;
+
+            var returnFalse = 0;
+
+            if (name == ""){
+                returnFalse = 1;
+                $('#error-name').html('* Digite seu Nome').removeClass('hidden');
+            } else {
+                $('#error-name').html('').addClass('hidden');
+            }
+
+            if (email == ""){
+                returnFalse = 1;
+                $('#error-email').html('* Digite seu Email').removeClass('hidden');
+            } else {
+                $('#error-email').html('').addClass('hidden');
+            }
+
+            if (password == ""){
+                returnFalse = 1;
+                $('#error-password').html('* Digite sua Senha').removeClass('hidden');
+            } else {
+                $('#error-password').html('').addClass('hidden');
+            }
+
+            if (confirmPassword == ""){
+                returnFalse = 1;
+                $('#error-confirm-password').html('* Confirme sua Senha').removeClass('hidden');
+            } else {
+                if (confirmPassword != password){
+                    returnFalse = 1;
+                    $('#error-confirm-password').html('* Senhas digitas não conferem').removeClass('hidden');
+                } else {
+                    $('#error-confirm-password').html('').addClass('hidden');
+                }
+            }
+
+            if (acceptTerms == 0){
+                returnFalse = 1;
+                $('#error-accept-terms').html('* Aceite nossos termos').removeClass('hidden');
+            } else {
+                $('#error-accept-terms').html('').addClass('hidden');
+            }
+
+            return returnFalse == 1 ? false : true;
+        }
+
+    });
+</script>
+@endpush

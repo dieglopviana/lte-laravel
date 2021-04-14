@@ -41,49 +41,7 @@
 
     <!-- <script src="{{asset('bower_components/bootstrap/js/modal.js')}}"></script> -->
 
-    <script>
-        $(function () {
-            $('input').iCheck({
-                checkboxClass: 'icheckbox_square-blue',
-                radioClass: 'iradio_square-blue',
-                increaseArea: '20%' // optional
-            });
-
-
-            $('body').on('click', '.forgot-password', function(){
-                $('.box-login').addClass('hidden');
-                $('input[type=text]').val('');
-                $('input[type=email]').val('');
-                $('input[type=password]').val('');
-
-                $('.box-forgot-password').removeClass('hidden');
-            })
-
-
-            $('body').on('click', '.cancel', function(){
-                $('.box-login').removeClass('hidden');
-                $('input[type=text]').val('');
-                $('input[type=email]').val('');
-                $('input[type=password]').val('');
-
-                $('.box-forgot-password').addClass('hidden');
-                $('.box-register').addClass('hidden');
-                $('input').iCheck('uncheck');
-            })
-
-
-            $('body').on('click', '.register', function(){
-                $('.box-login').addClass('hidden');
-                $('input[type=text]').val('');
-                $('input[type=email]').val('');
-                $('input[type=password]').val('');
-
-                $('.box-forgot-password').addClass('hidden');
-                $('.box-register').removeClass('hidden');
-            })
-
-        });
-    </script>
+    @stack('jsFooter')
 
 </body>
 </html>
