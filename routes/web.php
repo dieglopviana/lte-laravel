@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function(){
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    Route::view('/minha-conta', 'user.account')->name('user.account');
+    Route::post('/minha-conta', [UserController::class, 'account'])->name('user.account');
 });
 
 // LoginController

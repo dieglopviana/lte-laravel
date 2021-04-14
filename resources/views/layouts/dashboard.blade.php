@@ -143,14 +143,14 @@
                         <li class="dropdown user user-menu">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 <img src="../../dist/img/user2-160x160.jpg" class="user-image" alt="User Image"/>
-                                <span class="hidden-xs">Alexander Pierce</span>
+                                <span class="hidden-xs">{{ Auth::user()->name }}</span>
                             </a>
                             <ul class="dropdown-menu">
                                 <!-- User image -->
                                 <li class="user-header">
                                     <img src="../../dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
                                     <p>
-                                        Alexander Pierce - Web Developer
+                                    {{ Auth::user()->name }} - Web Developer
                                         <small>Member since Nov. 2012</small>
                                     </p>
                                 </li>
@@ -171,10 +171,10 @@
                                 <!-- Menu Footer-->
                                 <li class="user-footer">
                                     <div class="pull-left">
-                                        <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                        <a href="{{ route('user.account') }}" class="btn btn-default btn-flat">Minha Conta</a>
                                     </div>
                                     <div class="pull-right">
-                                        <a href="{{ route('login.logout') }}" class="btn btn-default btn-flat">Sign out</a>
+                                        <a href="{{ route('login.logout') }}" class="btn btn-default btn-flat">Sair</a>
                                     </div>
                                 </li>
                             </ul>
@@ -203,7 +203,7 @@
                         <img src="../../dist/img/user2-160x160.jpg" class="img-circle" alt="User Image" />
                     </div>
                     <div class="pull-left info">
-                        <p>Alexander Pierce</p>
+                        <p>{{ Auth::user()->name }}</p>
 
                         <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                     </div>
@@ -406,5 +406,7 @@
 
     <!-- Demo -->
     <script src="{{ asset('dist/js/demo.js') }}" type="text/javascript"></script>
+
+    @stack('jsFooter')
   </body>
 </html>

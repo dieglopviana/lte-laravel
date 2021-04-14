@@ -50,4 +50,49 @@ class UserController extends Controller
         }
     }
 
+
+    public function account(Request $request){
+        $rules = [
+            'name' => 'required|regex:/^[\pL\s\-]+$/u',
+        ];
+
+        if ($request->has('password')){
+            $rules['password'] = 'required|confirmed';
+        }
+
+        $customMessages = [
+            'name.required' => '*Informe Seu Nome',
+            'name.regex' => '*Digite seu nome corretamente',
+            'password.required' => '*Digite sua senha',
+            'password.confirmed' => '*Confirme sua senha'
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $customMessages);
+
+        if ($validator->passes()){
+            $user = User::find(Auth::user()->id);
+
+            if ($user){
+                $user->name = $request->name;
+
+                if ($request->has('password')){
+                    $user->password = Hash::make($request->input('password'));
+                }
+
+                if ($user->save()){
+                    Auth::user()->name = $request->input('name');
+
+                    $request->session()->flash('messageSuccessfull', 'Dados alterados com sucesso!');
+                    return response()->json(['status' => 1]);
+                } else {
+                    return response()->json(['status' => 0, 'errors' => ['*Erro ao alterar dados']]);
+                }
+            } else {
+                return response()->json(['status' => 0, 'errors' => ['*Usuário não encontrado']]);
+            }
+        } else {
+            return response()->json(['status' => 0, 'errors' => $validator->errors()->all()]);
+        }
+    }
+
 }
